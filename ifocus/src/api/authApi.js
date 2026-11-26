@@ -25,22 +25,39 @@ export async function login(emailOuCpf, senha) {
     db.user = usuario
     await saveDb(db)
     await AsyncStorage.setItem('token', 'demo-token')
+    await AsyncStorage.setItem('authRole', 'STUDENT')
     return { token: 'demo-token', user: usuario }
   }
 
   try {
     const { data } = await api.post('/auth/login', { emailOuCpf: emailOuCpf.trim(), senha })
     await AsyncStorage.setItem('token', data.token)
+    await AsyncStorage.setItem('authRole', 'STUDENT')
     return data
   } catch (error) {
-    const mensagemErro = error.response?.data?.message || 'E-mail/CPF ou senha incorretos.'
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message || 'E-mail/CPF ou senha incorretos.'
     throw new Error(mensagemErro)
   }
 }
 
+export async function loginAdmin(login, senha) {
+  if (USE_MOCK) {
+    throw new Error('O login de administrador requer conexão com o servidor.')
+  }
+
+  try {
+    const { data } = await api.post('/user_admin/login', { login: login.trim(), senha })
+    await AsyncStorage.setItem('token', data.token)
+    await AsyncStorage.setItem('authRole', 'ADMIN')
+    return data
+  } catch (error) {
+    const mensagemErro = error.response?.data?.detail || error.response?.data?.message
+    throw new Error(mensagemErro || 'Login ou senha de administrador incorretos.')
+  }
+}
+
 /**
- * Cria (ou substitui, neste mock de usuário único) a conta de demonstração
- * e já efetua o login com ela.
+ * Cria uma conta e já efetua o login com ela.
  *
  * No Spring: POST /api/auth/register recebe os mesmos campos e deve
  * validar e-mail duplicado antes de salvar.
@@ -58,16 +75,18 @@ export async function register({ nomeCompleto, email, senha, cpf = '', pais = 'B
     db.user = usuario
     await saveDb(db)
     await AsyncStorage.setItem('token', 'demo-token')
+    await AsyncStorage.setItem('authRole', 'STUDENT')
     return { token: 'demo-token', user: usuario }
   }
 
   try {
     const { data } = await api.post('/auth/register', { nomeCompleto, email, senha, cpf, pais, cidade })
     await AsyncStorage.setItem('token', data.token)
+    await AsyncStorage.setItem('authRole', 'STUDENT')
     return data
   } catch (error) {
     const codigo = error.response?.data?.code || error.response?.data?.error
-    const mensagemServidor = error.response?.data?.message || ''
+    const mensagemServidor = error.response?.data?.detail || error.response?.data?.message || ''
     if (error.response?.status === 409 || codigo === 'EMAIL_ALREADY_EXISTS' || /e-?mail.*(cadastrad|exist)|already exists|duplicate/i.test(mensagemServidor)) {
       throw new Error('Este e-mail já está cadastrado.')
     }
@@ -78,5 +97,5 @@ export async function register({ nomeCompleto, email, senha, cpf = '', pais = 'B
 
 export async function logout() {
   await AsyncStorage.removeItem('token')
-  if (!USE_MOCK) await api.post('/auth/logout')
+  await AsyncStorage.removeItem('authRole')
 }

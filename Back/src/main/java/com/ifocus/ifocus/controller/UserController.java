@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import com.ifocus.ifocus.DTO.LoginDTO;
 import com.ifocus.ifocus.DTO.UserDTO;
@@ -39,9 +40,10 @@ public UserDTO findById(@RequestBody Integer id) {
     return userService.findById(id);
 }
 @PostMapping("/login")
-public UserDTO login(@RequestBody LoginDTO loginDTO) {
-    return userService.login(
-        loginDTO.getMatricula()
+public UserDTO login(@Valid @RequestBody LoginDTO loginDTO) {
+    return userService.loginByMatricula(
+        loginDTO.getMatricula(),
+        loginDTO.getSenha()
     );
 }
 }

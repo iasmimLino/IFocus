@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import LoginScreen from '../screens/LoginScreen'
 import CriarContaScreen from '../screens/CriarContaScreen'
+import RecuperarSenhaScreen from '../screens/RecuperarSenhaScreen'
 import MainTabs from './MainTabs'
 import CalendarioScreen from '../screens/CalendarioScreen'
 import PerfilScreen from '../screens/PerfilScreen'
@@ -30,6 +31,7 @@ export default function RootNavigator({ initialRouteName }) {
     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="CriarConta" component={CriarContaScreen} />
+      <Stack.Screen name="RecuperarSenha" component={RecuperarSenhaScreen} />
       <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="Calendario" component={CalendarioScreen} />
       <Stack.Screen name="Perfil" component={PerfilScreen} />

@@ -10,5 +10,7 @@ import com.ifocus.ifocus.models.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
-       Optional<User> findByMatricula(int matricula);
+       Optional<User> findByMatricula(Integer matricula);
+       Optional<User> findByEmailIgnoreCase(String email);
+       Optional<User> findByCpf(String cpf);
 }

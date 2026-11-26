@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { colors } from '../theme/colors'
 import SideMenu from './SideMenu'
 import { logout } from '../api/authApi'
@@ -14,8 +15,17 @@ function navegadorRaiz(navigation) {
   return atual
 }
 
-export default function Header({ navigation, showBack, title, onBellPress, onBackPress }) {
+export default function Header({
+  navigation,
+  showBack,
+  title,
+  onBellPress,
+  onBackPress,
+  compact = false,
+  backgroundColor = colors.bg,
+}) {
   const [menuAberto, setMenuAberto] = useState(false)
+  const insets = useSafeAreaInsets()
   const rootNavigation = navegadorRaiz(navigation)
 
   function handleSair() {
@@ -33,19 +43,42 @@ export default function Header({ navigation, showBack, title, onBellPress, onBac
   }
 
   return (
-    <View style={styles.row}>
+    <View style={[
+      styles.row,
+      compact && styles.compactRow,
+      compact && { paddingTop: Math.max(8, insets.top + 4) },
+      { backgroundColor },
+    ]}>
       {showBack ? (
-        <TouchableOpacity onPress={onBackPress || (() => navigation.goBack())} hitSlop={10}>
-          <Ionicons name="arrow-back" size={24} color={colors.dark} />
+        <TouchableOpacity
+          style={compact ? styles.compactButton : undefined}
+          onPress={onBackPress || (() => navigation.goBack())}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Voltar"
+        >
+          <Ionicons name="arrow-back" size={compact ? 19 : 24} color={colors.dark} />
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity onPress={() => setMenuAberto(true)} hitSlop={10}>
-          <Ionicons name="menu" size={26} color={colors.dark} />
+        <TouchableOpacity
+          style={compact ? styles.compactButton : undefined}
+          onPress={() => setMenuAberto(true)}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir menu"
+        >
+          <Ionicons name="menu" size={compact ? 20 : 26} color={colors.dark} />
         </TouchableOpacity>
       )}
-      {title ? <Text style={styles.title}>{title}</Text> : <View />}
-      <TouchableOpacity onPress={onBellPress || (() => rootNavigation.navigate('Notificacoes'))} hitSlop={10}>
-        <Ionicons name="notifications-outline" size={24} color={colors.dark} />
+      {title ? <Text style={compact ? styles.compactTitle : undefined} numberOfLines={1}>{title}</Text> : <View style={compact ? styles.titleSpacer : undefined} />}
+      <TouchableOpacity
+        style={compact ? styles.compactButton : undefined}
+        onPress={onBellPress || (() => rootNavigation.navigate('Notificacoes'))}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel="Notificações"
+      >
+        <Ionicons name="notifications-outline" size={compact ? 18 : 24} color={colors.dark} />
       </TouchableOpacity>
 
       <SideMenu
@@ -68,5 +101,8 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     backgroundColor: colors.bg,
   },
-  title: { fontSize: 16, fontWeight: '600', color: colors.dark },
+  compactRow: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 10 },
+  compactButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', elevation: 1 },
+  titleSpacer: { flex: 1 },
+  compactTitle: { flex: 1, textAlign: 'center', fontSize: 12, fontWeight: '700', marginHorizontal: 8 },
 })

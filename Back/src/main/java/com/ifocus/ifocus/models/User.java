@@ -37,12 +37,22 @@ public class User implements Serializable{ // serializa a classe oara import reg
   @Column(nullable = false)
   private String nome;
 
-  @Column(nullable = false, unique = true)
+  @Column(unique = true)
   private Integer matricula;
 
   @Column(nullable = false)
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String senha;
+
+  @Column(unique = true, length = 254)
+  private String email;
+
+  @Column(unique = true, length = 11)
+  private String cpf;
+
+  private String pais;
+
+  private String cidade;
 
   @ManyToOne
   @JoinColumn(name = "id_turma")
